@@ -1,0 +1,7 @@
+import sqlite3
+
+con = sqlite3.connect("users.db") #connect to db
+cur = con.cursor() #cursor for db
+#cur.execute("CREATE TABLE userDB(UserID, Name, score)")
+res = cur.execute("SELECT name FROM sqlite_master")
+res.fetchone()
