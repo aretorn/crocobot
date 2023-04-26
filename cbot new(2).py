@@ -43,7 +43,8 @@ async def get_text_messages(message: types.Message):
         con.commit()
         markup = types.InlineKeyboardMarkup()
         markup.add(
-            types.InlineKeyboardButton('Хочу загадати слово!', callback_data='next')
+            types.InlineKeyboardButton('Хочу загадати слово!', callback_data='next'),
+            #types.InlineKeyboardButton('Подивитись слово', callback_data='view'),
         )
         await bot.send_message(message.chat.id, f'{message.from_user.first_name} won! ', reply_markup=markup)
         word = change_word()
@@ -66,20 +67,21 @@ async def get_text_messages(message: types.Message):
 async def get_text_messages(call: types.CallbackQuery):
     user = call.from_user
     markup = types.InlineKeyboardMarkup()
+    data = f'view_{user.id}'
     markup.add(
-        types.InlineKeyboardButton(f'{user.first_name} загадує слово!', callback_data=f'view_{user.id}')
+        types.InlineKeyboardButton(f'{user.first_name} загадує слово!(подивитись)', callback_data=data)
     )
-    await call.message.edit_reply_markup()
+    await call.message.edit_reply_markup(reply_markup=markup)
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('view_'))
 async def get_text_messages(call: types.CallbackQuery):
-
+    print(get_text_messages)
     user = call.from_user
-    markup = types.InlineKeyboardMarkup()
-    markup.add(
-        types.InlineKeyboardButton(f'{user.first_name} загадує слово!', callback_data=f'view_{user.id}')
-    )
-    await call.message.edit_reply_markup()
+    player_id = call.data.split('_')[1]
+    if int(player_id) != user.id:
+        await call.answer('fail')
+        return
+    await call.answer(word)
 
 def change_word():
     word = random.choice(my_dict)
