@@ -22,7 +22,7 @@ cur = con.cursor()  # cursor for db
 
 @dp.message_handler(commands=['start'])
 async def start_handler(message: types.Message):
-#    user_id = message.from_user.id
+    #    user_id = message.from_user.id
     user = message.from_user
     user_id = user.id
     user_name = message.from_user.first_name
@@ -44,7 +44,7 @@ async def get_text_messages(message: types.Message):
         markup = types.InlineKeyboardMarkup()
         markup.add(
             types.InlineKeyboardButton('Хочу загадати слово!', callback_data='next'),
-            #types.InlineKeyboardButton('Подивитись слово', callback_data='view'),
+            # types.InlineKeyboardButton('Подивитись слово', callback_data='view'),
         )
         await bot.send_message(message.chat.id, f'{message.from_user.first_name} won! ', reply_markup=markup)
         word = change_word()
@@ -52,16 +52,10 @@ async def get_text_messages(message: types.Message):
         print(word)
         for row in cur.execute("SELECT * FROM userdb"):
             print(row)
+   #перевірка на те шо слова які вгадує загадувач - ігнорити
 
-    # if message.text == "Привіт Бот!":
-    #     await bot.send_message(message.from_user.id, "/help для допомоги")
-    # elif message.text == "/help":
-    #     await bot.send_message(message.from_user.id, "Привіт! Ти зайшов в чат для гри в крокодила. "
-    #                                                  "Вгадуй слова, які пояснюють гравці та загадуй слова сам, "
-    #                                                  "якщо вгадаєш.")
-    # elif message.text == "Дошка результатів":
-    #     await bot.send_message(message.from_user.id, "Привіт! Ось результати гравців!")
-
+    #message.from_user.id == user.id:
+     #   pass
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data == 'next')
 async def get_text_messages(call: types.CallbackQuery):
@@ -73,15 +67,20 @@ async def get_text_messages(call: types.CallbackQuery):
     )
     await call.message.edit_reply_markup(reply_markup=markup)
 
+
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('view_'))
 async def get_text_messages(call: types.CallbackQuery):
     print(get_text_messages)
     user = call.from_user
     player_id = call.data.split('_')[1]
+    await call.answer(word)
     if int(player_id) != user.id:
         await call.answer('fail')
         return
-    await call.answer(word)
+    if int(player_id) == user.id:
+        await call.answer(word)
+# якщо той хто загадує слово напише його - не робити нічого
+
 
 def change_word():
     word = random.choice(my_dict)
