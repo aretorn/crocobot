@@ -1,11 +1,10 @@
-import time
-import logging
 import asyncio
+import logging
 import sqlite3
-
+import time
 import requests
-from aiogram import Bot, Dispatcher, executor, types
 from googletrans import Translator
+from aiogram import Bot, Dispatcher, executor, types
 
 TOKEN = "6087137748:AAE8U1EqbDBUdAnDXMMoyYeHUefRUeZVPPU"
 MSG = "---"
