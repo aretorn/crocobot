@@ -3,7 +3,7 @@ import logging
 import sqlite3
 import time
 import requests
-from googletrans import Translator
+import mtranslate
 from aiogram import Bot, Dispatcher, executor, types
 
 TOKEN = "6087137748:AAE8U1EqbDBUdAnDXMMoyYeHUefRUeZVPPU"
@@ -13,11 +13,15 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher(bot=bot)
 
 
+
 def get_word():
     url = 'https://random-word-api.herokuapp.com/word'
     response = requests.get(url)
     word = response.json()[0]
-    return word
+
+    translation = mtranslate.translate(word, 'uk')
+
+    return translation
 
 
 con = sqlite3.connect("users.db")  # connect to db
