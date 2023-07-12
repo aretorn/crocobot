@@ -5,20 +5,25 @@ import sqlite3
 
 import requests
 from aiogram import Bot, Dispatcher, executor, types
+from googletrans import Translator
 
 TOKEN = "6087137748:AAE8U1EqbDBUdAnDXMMoyYeHUefRUeZVPPU"
 MSG = "---"
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot=bot)
+
+
 def get_word():
     url = 'https://random-word-api.herokuapp.com/word'
     response = requests.get(url)
     word = response.json()[0]
     return word
 
+
 con = sqlite3.connect("users.db")  # connect to db
 cur = con.cursor()  # cursor for db
+
 
 @dp.message_handler(commands=['start'])
 async def start_handler(message: types.Message):
@@ -51,6 +56,7 @@ async def get_text_messages(message: types.Message):
         for row in cur.execute("SELECT * FROM userdb"):
             print(row)
 
+
 @dp.callback_query_handler(lambda callback_query: callback_query.data == 'next')
 async def get_text_messages(call: types.CallbackQuery):
     global player_id
@@ -59,14 +65,15 @@ async def get_text_messages(call: types.CallbackQuery):
     markup = types.InlineKeyboardMarkup()
     data = f'view_{user.id}'
     markup.add(
-        types.InlineKeyboardButton(f'{user.first_name} загадує слово! \n(подивитись)', callback_data=data)
+        types.InlineKeyboardButton(f'{user.first_name} загадує слово!(подивитись)', callback_data=data)
     )
     await call.message.edit_reply_markup(reply_markup=markup)
+
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('view_'))
 async def get_text_messages(call: types.CallbackQuery):
     print(get_text_messages)
-    user = call.from_user # той хто загадує слово
+    user = call.from_user  # той хто загадує слово
     # player_id = call.data.split('_')[1]
     # await call.answer(word)
     if player_id != user.id:
@@ -75,6 +82,8 @@ async def get_text_messages(call: types.CallbackQuery):
         return
     if player_id == user.id:
         await call.answer(word)
+
+
 def show_results():
     pass
 
