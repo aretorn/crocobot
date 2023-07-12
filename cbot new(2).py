@@ -3,6 +3,8 @@ import logging
 import asyncio
 import random
 import sqlite3
+
+import requests
 from aiogram import Bot, Dispatcher, executor, types
 
 TOKEN = "6087137748:AAE8U1EqbDBUdAnDXMMoyYeHUefRUeZVPPU"
@@ -10,8 +12,11 @@ MSG = "---"
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot=bot)
-my_dict = ['слово', 'інше', 'загадка', 'костиль']  # тут нада прикрутить якийсь словник
-# написати використання таблиці з словами
+my_dict = ['слово', 'інше', 'загадка', 'костиль']
+
+url = 'https://random-word-api.herokuapp.com/word'
+response = requests.get(url)
+my_word = response.json()[0]
 used_words = []  # вже використані слова
 
 con = sqlite3.connect("users.db")  # connect to db
@@ -38,7 +43,7 @@ async def start_handler(message: types.Message):
 async def get_text_messages(message: types.Message):
     global word
     player_word = message.text
-    if player_word == word:
+    if player_word.lower() == word.lower() and player_id != message.from_user.id:
         cur.execute(f"""INSERT INTO userdb VALUES ('{message.from_user.id}','{message.from_user.first_name}', 1)""")
         con.commit()
         markup = types.InlineKeyboardMarkup()
@@ -52,14 +57,12 @@ async def get_text_messages(message: types.Message):
         print(word)
         for row in cur.execute("SELECT * FROM userdb"):
             print(row)
-   #перевірка на те шо слова які вгадує загадувач - ігнорити
-
-    #message.from_user.id == user.id:
-     #   pass
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data == 'next')
 async def get_text_messages(call: types.CallbackQuery):
+    global player_id
     user = call.from_user
+    player_id = user.id
     markup = types.InlineKeyboardMarkup()
     data = f'view_{user.id}'
     markup.add(
@@ -71,13 +74,14 @@ async def get_text_messages(call: types.CallbackQuery):
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('view_'))
 async def get_text_messages(call: types.CallbackQuery):
     print(get_text_messages)
-    user = call.from_user
-    player_id = call.data.split('_')[1]
-    await call.answer(word)
-    if int(player_id) != user.id:
-        await call.answer('fail')
+    user = call.from_user # той хто загадує слово
+    # player_id = call.data.split('_')[1]
+    # await call.answer(word)
+    if player_id != user.id:
+        player = await call.bot.get_chat(player_id)
+        await call.answer(f'Слово загадує {player.first_name}')
         return
-    if int(player_id) == user.id:
+    if player_id == user.id:
         await call.answer(word)
 # якщо той хто загадує слово напише його - не робити нічого
 
@@ -93,5 +97,6 @@ def show_results():
 
 if __name__ == '__main__':
     word = change_word()
+    player_id = None
     print(word)
     executor.start_polling(dp)
