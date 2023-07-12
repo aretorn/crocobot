@@ -12,12 +12,13 @@ MSG = "---"
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot=bot)
-my_dict = ['слово', 'інше', 'загадка', 'костиль']
+# my_dict = ['слово', 'інше', 'загадка', 'костиль']
+def get_word():
+    url = 'https://random-word-api.herokuapp.com/word'
+    response = requests.get(url)
+    word = response.json()[0]
+    return word
 
-url = 'https://random-word-api.herokuapp.com/word'
-response = requests.get(url)
-my_word = response.json()[0]
-used_words = []  # вже використані слова
 
 con = sqlite3.connect("users.db")  # connect to db
 cur = con.cursor()  # cursor for db
@@ -52,8 +53,7 @@ async def get_text_messages(message: types.Message):
             # types.InlineKeyboardButton('Подивитись слово', callback_data='view'),
         )
         await bot.send_message(message.chat.id, f'{message.from_user.first_name} won! ', reply_markup=markup)
-        word = change_word()
-
+        word = get_word()
         print(word)
         for row in cur.execute("SELECT * FROM userdb"):
             print(row)
@@ -66,7 +66,7 @@ async def get_text_messages(call: types.CallbackQuery):
     markup = types.InlineKeyboardMarkup()
     data = f'view_{user.id}'
     markup.add(
-        types.InlineKeyboardButton(f'{user.first_name} загадує слово!(подивитись)', callback_data=data)
+        types.InlineKeyboardButton(f'{user.first_name} загадує слово! \n(подивитись)', callback_data=data)
     )
     await call.message.edit_reply_markup(reply_markup=markup)
 
@@ -86,9 +86,9 @@ async def get_text_messages(call: types.CallbackQuery):
 # якщо той хто загадує слово напише його - не робити нічого
 
 
-def change_word():
-    word = random.choice(my_dict)
-    return word
+# def change_word():
+#     word = random.choice(my_dict)
+#     return word
 
 
 def show_results():
@@ -96,7 +96,7 @@ def show_results():
 
 
 if __name__ == '__main__':
-    word = change_word()
+    word = get_word()
     player_id = None
     print(word)
     executor.start_polling(dp)
