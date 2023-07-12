@@ -13,21 +13,18 @@ bot = Bot(token=TOKEN)
 dp = Dispatcher(bot=bot)
 
 
-
 def get_word():
     url = 'https://random-word-api.herokuapp.com/word'
     response = requests.get(url)
     word = response.json()[0]
-
     translation = mtranslate.translate(word, 'uk')
-
     return translation
 
 
 con = sqlite3.connect("users.db")  # connect to db
 cur = con.cursor()  # cursor for db
 
-
+#зробити кнопку яка буде змінювати слово
 @dp.message_handler(commands=['start'])
 async def start_handler(message: types.Message):
     user = message.from_user
