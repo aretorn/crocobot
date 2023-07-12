@@ -1,7 +1,6 @@
 import time
 import logging
 import asyncio
-import random
 import sqlite3
 
 import requests
@@ -12,23 +11,17 @@ MSG = "---"
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher(bot=bot)
-# my_dict = ['слово', 'інше', 'загадка', 'костиль']
 def get_word():
     url = 'https://random-word-api.herokuapp.com/word'
     response = requests.get(url)
     word = response.json()[0]
     return word
 
-
 con = sqlite3.connect("users.db")  # connect to db
 cur = con.cursor()  # cursor for db
 
-
-# cur.execute("CREATE TABLE userDB(UserID, Name, score)")
-
 @dp.message_handler(commands=['start'])
 async def start_handler(message: types.Message):
-    #    user_id = message.from_user.id
     user = message.from_user
     user_id = user.id
     user_name = message.from_user.first_name
@@ -70,7 +63,6 @@ async def get_text_messages(call: types.CallbackQuery):
     )
     await call.message.edit_reply_markup(reply_markup=markup)
 
-
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('view_'))
 async def get_text_messages(call: types.CallbackQuery):
     print(get_text_messages)
@@ -83,14 +75,6 @@ async def get_text_messages(call: types.CallbackQuery):
         return
     if player_id == user.id:
         await call.answer(word)
-# якщо той хто загадує слово напише його - не робити нічого
-
-
-# def change_word():
-#     word = random.choice(my_dict)
-#     return word
-
-
 def show_results():
     pass
 
