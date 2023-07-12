@@ -48,7 +48,6 @@ async def get_text_messages(message: types.Message):
         markup = types.InlineKeyboardMarkup()
         markup.add(
             types.InlineKeyboardButton('Хочу загадати слово!', callback_data='next'),
-            # types.InlineKeyboardButton('Подивитись слово', callback_data='view'),
         )
         await bot.send_message(message.chat.id, f'{message.from_user.first_name} won! ', reply_markup=markup)
         word = get_word()
@@ -64,18 +63,20 @@ async def get_text_messages(call: types.CallbackQuery):
     player_id = user.id
     markup = types.InlineKeyboardMarkup()
     data = f'view_{user.id}'
+    data2 = f'change_{user.id}'
     markup.add(
         types.InlineKeyboardButton(f'{user.first_name} загадує слово!(подивитись)', callback_data=data)
+    ),
+    markup.add(
+        types.InlineKeyboardButton('змінити слово', callback_data=data2)
     )
     await call.message.edit_reply_markup(reply_markup=markup)
 
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('view_'))
 async def get_text_messages(call: types.CallbackQuery):
-    print(get_text_messages)
+    # print(get_text_messages)
     user = call.from_user  # той хто загадує слово
-    # player_id = call.data.split('_')[1]
-    # await call.answer(word)
     if player_id != user.id:
         player = await call.bot.get_chat(player_id)
         await call.answer(f'Слово загадує {player.first_name}')
@@ -83,7 +84,18 @@ async def get_text_messages(call: types.CallbackQuery):
     if player_id == user.id:
         await call.answer(word)
 
-
+@dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('change_'))
+async def get_text_messages(call: types.CallbackQuery):
+    # print(get_text_messages)
+    global word
+    user = call.from_user  # той хто загадує слово
+    if player_id != user.id:
+        player = await call.bot.get_chat(player_id)
+        await call.answer(f'Слово загадує {player.first_name}')
+        return
+    if player_id == user.id:
+        word = get_word()
+        print(word)
 def show_results():
     pass
 
