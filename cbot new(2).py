@@ -103,6 +103,8 @@ def show_results():
 
 if __name__ == '__main__':
     word = get_word()
-    player_id = None
+    player_id = ''
+    hello = 'GoGoGo'
+    # bot.send_message(988391380, hello)
     print(word)
     executor.start_polling(dp)
