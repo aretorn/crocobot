@@ -4,9 +4,10 @@ import sqlite3
 import time
 import requests
 import mtranslate
+from tocken import token
 from aiogram import Bot, Dispatcher, executor, types
 
-TOKEN = "6087137748:AAE8U1EqbDBUdAnDXMMoyYeHUefRUeZVPPU"
+TOKEN = token()
 MSG = "---"
 
 bot = Bot(token=TOKEN)
@@ -58,7 +59,7 @@ async def get_text_messages(message: types.Message):
 @dp.callback_query_handler(lambda callback_query: callback_query.data == 'next')
 async def get_text_messages(call: types.CallbackQuery):
     global player_id
-    user = call.from_user
+    user = call.from_user 
     player_id = user.id
     markup = types.InlineKeyboardMarkup()
     data = f'view_{user.id}'
@@ -97,8 +98,8 @@ async def get_text_messages(call: types.CallbackQuery):
         print(word)
 
 
-def show_results():
-    pass
+# def show_results():
+#     pass
 
 
 if __name__ == '__main__':
