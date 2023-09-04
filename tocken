@@ -1,3 +1,0 @@
-def token():
-    bot_token = "6087137748:AAE8U1EqbDBUdAnDXMMoyYeHUefRUeZVPPU"
-    return token
